@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: shopfast-ecommerce
+
+  # H2 In-Memory Database
+  datasource:
+    url: jdbc:h2:mem:shopfast;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  # JPA/Hibernate Settings (INTENTIONALLY BAD FOR V1)
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        # BAD SETTINGS - Performance Problems
+        jdbc:
+          batch_size: 1          # Very low batch size
+        connection:
+          pool_size: 3           # Very low connection pool
+        order_inserts: false     # No insert optimization
+        order_updates: false     # No update optimization
+
+  # DISABLE SQL INITIALIZATION - we'll use @PostConstruct instead
+  sql:
+    init:
+      mode: never
+
+  # H2 Console for Database Inspection
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Security - Basic Auth (Simple)
+  security:
+    user:
+      name: admin
+      password: admin123
+
+# Server Settings (INTENTIONALLY BAD)
+server:
+  port: 8080
+  tomcat:
+    max-connections: 20        # Very low
+    threads:
+      max: 5                   # Very low thread count
+      min-spare: 1
+
+# Actuator for Basic Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging - Show Problems Clearly
+logging:
+  level:
+    com.shopfast: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

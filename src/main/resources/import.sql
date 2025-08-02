@@ -1,0 +1,31 @@
+-- Test Users (Her INSERT ayrı satırda)
+INSERT INTO users (email, password, first_name, last_name, phone, created_at, updated_at) VALUES ('john.doe@email.com', '$2a$10$YQkLv5tOo9tZKHOYC5qI8O7BXtNvgZqOo9tZKHOYC5qI8O7BXtNvgZ', 'John', 'Doe', '+90555123456', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO users (email, password, first_name, last_name, phone, created_at, updated_at) VALUES ('jane.smith@email.com', '$2a$10$YQkLv5tOo9tZKHOYC5qI8O7BXtNvgZqOo9tZKHOYC5qI8O7BXtNvgZ', 'Jane', 'Smith', '+90555123457', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO users (email, password, first_name, last_name, phone, created_at, updated_at) VALUES ('bob.wilson@email.com', '$2a$10$YQkLv5tOo9tZKHOYC5qI8O7BXtNvgZqOo9tZKHOYC5qI8O7BXtNvgZ', 'Bob', 'Wilson', '+90555123458', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO users (email, password, first_name, last_name, phone, created_at, updated_at) VALUES ('alice.brown@email.com', '$2a$10$YQkLv5tOo9tZKHOYC5qI8O7BXtNvgZqOo9tZKHOYC5qI8O7BXtNvgZ', 'Alice', 'Brown', '+90555123459', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO users (email, password, first_name, last_name, phone, created_at, updated_at) VALUES ('mike.davis@email.com', '$2a$10$YQkLv5tOo9tZKHOYC5qI8O7BXtNvgZqOo9tZKHOYC5qI8O7BXtNvgZ', 'Mike', 'Davis', '+90555123460', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Test Products
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('iPhone 15 Pro', 'Latest iPhone with A17 Pro chip, 256GB storage', 59999.99, 100, 'Electronics', 'https://example.com/iphone15pro.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('Samsung Galaxy S24', 'Flagship Samsung phone with 512GB storage', 54999.99, 150, 'Electronics', 'https://example.com/galaxys24.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('MacBook Pro M3', '14-inch MacBook Pro with M3 chip, 16GB RAM', 89999.99, 50, 'Electronics', 'https://example.com/macbookpro.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('iPad Air', '10.9-inch iPad Air with M1 chip', 34999.99, 80, 'Electronics', 'https://example.com/ipadair.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('AirPods Pro', 'Wireless earbuds with active noise cancellation', 2999.99, 200, 'Electronics', 'https://example.com/airpods.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('Nike Air Max', 'Premium running shoes', 1299.99, 300, 'Fashion', 'https://example.com/nikeairmax.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('Adidas Hoodie', 'Comfortable cotton hoodie', 599.99, 500, 'Fashion', 'https://example.com/adidashoodie.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('Levis Jeans', 'Classic blue jeans', 899.99, 250, 'Fashion', 'https://example.com/levisjeans.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('Coffee Machine', 'Automatic espresso machine', 4999.99, 75, 'Home', 'https://example.com/coffee.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO products (name, description, price, stock_quantity, category, image_url, is_active, created_at, updated_at) VALUES ('Gaming Chair', 'Ergonomic gaming chair', 3499.99, 60, 'Home', 'https://example.com/gamingchair.jpg', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- Black Friday Campaigns
+INSERT INTO campaigns (name, description, product_id, discount_percentage, max_quantity, start_date, end_date, is_active, sold_quantity, created_at) VALUES ('Black Friday iPhone Deal', 'iPhone 15 Pro için özel Black Friday indirimi - %50 OFF!', 1, 50.00, 50, DATEADD('HOUR', -1, CURRENT_TIMESTAMP), DATEADD('HOUR', 24, CURRENT_TIMESTAMP), true, 0, CURRENT_TIMESTAMP);
+INSERT INTO campaigns (name, description, product_id, discount_percentage, max_quantity, start_date, end_date, is_active, sold_quantity, created_at) VALUES ('MacBook Pro Black Friday', 'MacBook Pro M3 için sınırlı süre indirimi', 3, 30.00, 20, DATEADD('HOUR', -1, CURRENT_TIMESTAMP), DATEADD('HOUR', 24, CURRENT_TIMESTAMP), true, 0, CURRENT_TIMESTAMP);
+INSERT INTO campaigns (name, description, product_id, discount_percentage, max_quantity, start_date, end_date, is_active, sold_quantity, created_at) VALUES ('Nike Flash Sale', 'Nike Air Max için flash sale', 6, 40.00, 100, DATEADD('HOUR', -1, CURRENT_TIMESTAMP), DATEADD('HOUR', 12, CURRENT_TIMESTAMP), true, 0, CURRENT_TIMESTAMP);
+
+-- Sample Orders
+INSERT INTO orders (user_id, total_amount, status, shipping_address, created_at, updated_at) VALUES (1, 2999.99, 'DELIVERED', 'Ankara, Turkey', DATEADD('DAY', -5, CURRENT_TIMESTAMP), DATEADD('DAY', -5, CURRENT_TIMESTAMP));
+INSERT INTO orders (user_id, total_amount, status, shipping_address, created_at, updated_at) VALUES (2, 54999.99, 'SHIPPED', 'Istanbul, Turkey', DATEADD('DAY', -3, CURRENT_TIMESTAMP), DATEADD('DAY', -3, CURRENT_TIMESTAMP));
+
+-- Sample Order Items
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES (1, 5, 1, 2999.99, 2999.99);
+INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES (2, 2, 1, 54999.99, 54999.99);
