@@ -9,7 +9,16 @@ spring:
     username: sa
     password: password
 
-  # JPA/Hibernate Settings (INTENTIONALLY BAD FOR V1)
+    # ✅ V2 FIX: HikariCP Connection Pool Optimization
+    hikari:
+      maximum-pool-size: 20        # ⬆️ Was: 3 (in hibernate settings)
+      minimum-idle: 5              # ✅ NEW: Minimum idle connections
+      connection-timeout: 30000    # ✅ NEW: 30 seconds timeout
+      idle-timeout: 600000         # ✅ NEW: 10 minutes idle timeout
+      max-lifetime: 1800000        # ✅ NEW: 30 minutes max lifetime
+      leak-detection-threshold: 60000  # ✅ NEW: Leak detection (1 min)
+
+  # JPA/Hibernate Settings - V2 OPTIMIZED
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -18,13 +27,25 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
-        # BAD SETTINGS - Performance Problems
+
+        # ✅ V2 FIX: Batch Processing Optimization
         jdbc:
-          batch_size: 1          # Very low batch size
+          batch_size: 25           # ⬆️ Was: 1 - Much better batch size
+          batch_versioned_data: true  # ✅ NEW: Batch versioned entities
+
+        # ✅ V2 FIX: SQL Statement Ordering
+        order_inserts: true        # ⬆️ Was: false - Optimize INSERT order
+        order_updates: true        # ⬆️ Was: false - Optimize UPDATE order
+
+        # ✅ V2 FIX: Additional Performance Settings
+        generate_statistics: false  # ✅ NEW: Disable stats for performance
+        cache:
+          use_second_level_cache: false  # Keep disabled for now (V3 feature)
+          use_query_cache: false         # Keep disabled for now (V3 feature)
+
+        # ✅ V2 FIX: Connection Management
         connection:
-          pool_size: 3           # Very low connection pool
-        order_inserts: false     # No insert optimization
-        order_updates: false     # No update optimization
+          provider_disables_autocommit: true  # ✅ NEW: Performance optimization
 
   # DISABLE SQL INITIALIZATION - we'll use @PostConstruct instead
   sql:
@@ -43,24 +64,28 @@ spring:
       name: admin
       password: admin123
 
-# Server Settings (INTENTIONALLY BAD)
+# ✅ V2 FIX: Server Settings Optimization
 server:
   port: 8080
   tomcat:
-    max-connections: 20        # Very low
+    max-connections: 200         # ⬆️ Was: 20 - 10x increase
+    accept-count: 100            # ✅ NEW: Queue size for connections
     threads:
-      max: 5                   # Very low thread count
-      min-spare: 1
+      max: 50                    # ⬆️ Was: 5 - 10x increase
+      min-spare: 10              # ⬆️ Was: 1 - More spare threads
+    connection-timeout: 20000    # ✅ NEW: 20 seconds timeout
 
 # Actuator for Basic Monitoring
 management:
   endpoints:
     web:
       exposure:
-        include: health,metrics
+        include: health,metrics,hikaricp  # ✅ NEW: Added hikaricp metrics
   endpoint:
     health:
       show-details: always
+    metrics:
+      enabled: true
 
 # Logging - Show Problems Clearly
 logging:
@@ -68,5 +93,6 @@ logging:
     com.shopfast: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.zaxxer.hikari: DEBUG     # ✅ NEW: HikariCP logging
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
