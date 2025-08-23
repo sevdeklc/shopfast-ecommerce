@@ -30,7 +30,7 @@ Sonuç:
 ### N+1 Query Problem Çözümü  
 Problem: Her order item için ayrı Product ve Campaign sorgusu - 3 ürün için 6 ekstra query  
 
-Test Sonuçları (3 farklı ürün siparişi):
+Test Sonuçları (3 farklı ürün siparişi):  
 V1 (Öncesi): 13 SQL query (her ürün için ayrı Product + Campaign sorgusu)  
 V2 (Sonrası): 9 SQL query (batch fetching ile tek sorgu)  
 
