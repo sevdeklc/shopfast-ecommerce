@@ -63,13 +63,18 @@ public class OrderService {
 
         // Problem 2: A separate database query is executed for each item (N+1 Problem)
         for (OrderRequest.OrderItemRequest itemRequest : request.getItems()) {
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            // V2 FIX: Atomic stock decrease
+            int updatedRows = productRepository.decreaseStock(itemRequest.getProductId(), itemRequest.getQuantity());
 
-            // Problem 3: Race condition - Stock control is not atomic
-            if (product.getStockQuantity() < itemRequest.getQuantity()) {
+            if (updatedRows == 0) {
+                Product product = productRepository.findById(itemRequest.getProductId())
+                        .orElseThrow(() -> new RuntimeException("Product not found"));
                 throw new OutOfStockException("Not enough stock for product: " + product.getName());
             }
+
+            // Get product info after stock update
+            Product product = productRepository.findById(itemRequest.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
 
             // Campaign check (querying the database every time)
             Campaign activeCampaign = campaignRepository
@@ -81,9 +86,7 @@ public class OrderService {
                 unitPrice = activeCampaign.getDiscountedPrice();
             }
 
-            // Problem 4: Stock update is vulnerable to race conditions
-            product.setStockQuantity(product.getStockQuantity() - itemRequest.getQuantity());
-            productRepository.save(product); // Separate save operation for each item
+            // V2 FIX: Stock is already decreased by decreaseStock() method - no need for manual update
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
@@ -102,10 +105,7 @@ public class OrderService {
         order.setOrderItems(orderItems);
         order.setTotalAmount(totalAmount);
 
-        // Problem 6: Large transaction – long lock duration
         Order savedOrder = orderRepository.save(order);
-
-        // Problem 7: Synchronous notification (slow)
         sendOrderNotification(savedOrder);
 
         log.info("Order created successfully: {}", savedOrder.getId());
