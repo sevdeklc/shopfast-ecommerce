@@ -19,4 +19,7 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> {
 
     @Query("SELECT c FROM Campaign c WHERE c.product = :product AND c.isActive = true AND c.startDate <= :now AND c.endDate >= :now")
     Optional<Campaign> findActiveCampaignByProduct(@Param("product") Product product, @Param("now") LocalDateTime now);
+
+    @Query("SELECT c FROM Campaign c JOIN FETCH c.product p WHERE p.id IN :productIds AND c.isActive = true AND c.startDate <= :currentDate AND c.endDate >= :currentDate")
+    List<Campaign> findActiveCampaignsByProductIds(@Param("productIds") List<Long> productIds, @Param("currentDate") LocalDateTime currentDate);
 }

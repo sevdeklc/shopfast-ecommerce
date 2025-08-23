@@ -21,6 +21,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,16 +36,6 @@ public class OrderService {
     private final ProductRepository productRepository;
 
     private final CampaignRepository campaignRepository;
-
-    /**
-     * VERSION 1 (BAD) - This version will suffer from performance issues
-     * Problems:
-     * 1. N+1 Query Problem
-     * 2. Race Condition (Stock control)
-     * 3. Long running transaction
-     * 4. No caching
-     * 5. Synchronous processing
-     */
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -61,32 +53,52 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal totalAmount = BigDecimal.ZERO;
 
-        // Problem 2: A separate database query is executed for each item (N+1 Problem)
+        // V2 FIX: Collect all product IDs to eliminate N+1 Query Problem
+        List<Long> productIds = request.getItems().stream()
+                .map(OrderRequest.OrderItemRequest::getProductId)
+                .distinct()
+                .toList();
+
+        log.info("V2 FIX - Batch fetching {} unique products", productIds.size());
+
+        // V2 FIX: Batch fetch all products in single query
+        List<Product> products = productRepository.findByIdIn(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, product -> product));
+
+        // V2 FIX: Batch fetch all campaigns in single query
+        List<Campaign> activeCampaigns = campaignRepository.findActiveCampaignsByProductIds(productIds, LocalDateTime.now());
+        Map<Long, Campaign> campaignMap = activeCampaigns.stream()
+                .collect(Collectors.toMap(campaign -> campaign.getProduct().getId(), campaign -> campaign));
+
+        log.info("V2 FIX - Found {} active campaigns for products", activeCampaigns.size());
+
+        // Process each item with pre-fetched data
         for (OrderRequest.OrderItemRequest itemRequest : request.getItems()) {
-            // V2 FIX: Atomic stock decrease
+            // V2 FIX: Atomic stock decrease (already optimized)
             int updatedRows = productRepository.decreaseStock(itemRequest.getProductId(), itemRequest.getQuantity());
 
             if (updatedRows == 0) {
-                Product product = productRepository.findById(itemRequest.getProductId())
-                        .orElseThrow(() -> new RuntimeException("Product not found"));
+                Product product = productMap.get(itemRequest.getProductId());
+                if (product == null) {
+                    throw new RuntimeException("Product not found: " + itemRequest.getProductId());
+                }
                 throw new OutOfStockException("Not enough stock for product: " + product.getName());
             }
 
-            // Get product info after stock update
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            // V2 FIX: Get product from pre-fetched map instead of database query
+            Product product = productMap.get(itemRequest.getProductId());
+            if (product == null) {
+                throw new RuntimeException("Product not found: " + itemRequest.getProductId());
+            }
 
-            // Campaign check (querying the database every time)
-            Campaign activeCampaign = campaignRepository
-                    .findActiveCampaignByProduct(product, LocalDateTime.now())
-                    .orElse(null);
+            // V2 FIX: Get campaign from pre-fetched map instead of database query
+            Campaign activeCampaign = campaignMap.get(itemRequest.getProductId());
 
             BigDecimal unitPrice = product.getPrice();
             if (activeCampaign != null && activeCampaign.isCurrentlyActive()) {
                 unitPrice = activeCampaign.getDiscountedPrice();
             }
-
-            // V2 FIX: Stock is already decreased by decreaseStock() method - no need for manual update
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
@@ -98,7 +110,7 @@ public class OrderService {
             orderItems.add(orderItem);
             totalAmount = totalAmount.add(orderItem.getTotalPrice());
 
-            // Problem 5: Slow operations (simulation)
+            // Problem 5: Slow operations (simulation) - keeping for now
             simulateSlowProcess();
         }
 
