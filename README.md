@@ -1,4 +1,4 @@
-# ShopFast E-ticaret - V2 Basic Fixes  ⚠️
+# ShopFast E-ticaret - V2 Basic Fixes  
 
 > **Bu branch V1'deki kritik performans problemlerini çözen optimize edilmiş versiyondur.**
 
