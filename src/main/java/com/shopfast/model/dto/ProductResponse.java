@@ -12,7 +12,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private BigDecimal discountedPrice; // Discounted price if a campaign is available
+    private BigDecimal discountedPrice;
     private Integer stockQuantity;
     private String category;
     private String imageUrl;

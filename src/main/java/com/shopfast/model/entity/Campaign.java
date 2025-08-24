@@ -42,7 +42,7 @@ public class Campaign {
     private BigDecimal discountPercentage;
 
     @Column(name = "max_quantity")
-    private Integer maxQuantity; // Maximum quantity allowed per user for the discounted product
+    private Integer maxQuantity;
 
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
